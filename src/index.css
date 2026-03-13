@@ -1,0 +1,69 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ─── Dark theme (default) ──────────────────────────────────────────────── */
+:root {
+  --bg-app:          #111113;
+  --bg-surface:      #18181b;
+  --bg-elevated:     #1c1c1f;
+  --bg-input:        #1c1c1f;
+  --bg-hover:        #27272a;
+  --bg-active:       #1d4ed8;
+  --border:          #27272a;
+  --border-mid:      #3f3f46;
+  --text-primary:    #f4f4f5;
+  --text-secondary:  #e4e4e7;
+  --text-muted:      #a1a1aa;
+  --text-faint:      #71717a;
+  --text-ghost:      #52525b;
+  --dot-color:       #222222;
+  --shadow-card:     0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px #27272a;
+  --scrollbar-thumb: #333333;
+  --scrollbar-hover: #444444;
+  color-scheme: dark;
+}
+
+/* ─── Light theme ────────────────────────────────────────────────────────── */
+[data-theme='light'] {
+  --bg-app:          #f0f0f2;
+  --bg-surface:      #ffffff;
+  --bg-elevated:     #f8f8fa;
+  --bg-input:        #ffffff;
+  --bg-hover:        #e8e8ec;
+  --bg-active:       #1d4ed8;
+  --border:          #e2e2e6;
+  --border-mid:      #c8c8ce;
+  --text-primary:    #18181b;
+  --text-secondary:  #27272a;
+  --text-muted:      #52525b;
+  --text-faint:      #71717a;
+  --text-ghost:      #a1a1aa;
+  --dot-color:       #d4d4d8;
+  --shadow-card:     0 8px 40px rgba(0,0,0,0.12), 0 0 0 1px #d4d4d8;
+  --scrollbar-thumb: #c4c4c8;
+  --scrollbar-hover: #a1a1aa;
+  color-scheme: light;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-app);
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }

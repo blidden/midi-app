@@ -1,0 +1,170 @@
+
+/* Fills the canvas-scroll-area; all panning happens via transform on canvas-outer */
+.canvas-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: default;
+}
+.canvas-viewport.space-pan         { cursor: grab; }
+.canvas-viewport.panning           { cursor: grabbing; }
+.canvas-viewport.space-pan.panning { cursor: grabbing; }
+
+.canvas-outer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  will-change: transform;
+  position: absolute;
+}
+
+.canvas-label {
+  font-size: 12px;
+  color: var(--text-ghost);
+  font-weight: 500;
+  padding-left: 2px;
+  letter-spacing: 0.02em;
+}
+
+.canvas-board {
+  position: relative;
+  flex-shrink: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  cursor: grab;
+  user-select: none;
+}
+
+.board-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  border-radius: 10px;
+}
+
+/* Pedal on board */
+.placed-pedal {
+  position: absolute;
+  cursor: grab;
+  border-radius: 4px;
+  transition: box-shadow 0.15s;
+  z-index: 10;
+}
+
+.placed-pedal:active { cursor: grabbing; }
+
+.placed-pedal:hover {
+  z-index: 20;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5), 0 4px 16px rgba(0,0,0,0.5);
+}
+
+.placed-pedal.selected {
+  z-index: 30;
+  box-shadow: 0 0 0 3px #3b82f6, 0 4px 20px rgba(59, 130, 246, 0.4);
+}
+
+.pedal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  pointer-events: none;
+  display: block;
+}
+
+.pedal-fallback {
+  width: 100%;
+  height: 100%;
+  background: #27272a;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px;
+  pointer-events: none;
+}
+
+.pedal-fallback span:first-child {
+  font-size: 9px;
+  font-weight: 700;
+  color: #71717a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.pedal-fallback span:last-child {
+  font-size: 10px;
+  font-weight: 600;
+  color: #a1a1aa;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Remove button */
+.pedal-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 5;
+  font-weight: 700;
+  padding-bottom: 1px;
+}
+
+.placed-pedal:hover .pedal-remove,
+.placed-pedal.selected .pedal-remove { opacity: 1; }
+
+/* MIDI badge */
+.pedal-selected-indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #3b82f6;
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px 3px 0 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Empty board hint */
+.board-empty-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.25);
+  pointer-events: none;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}

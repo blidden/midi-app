@@ -1,0 +1,309 @@
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-section {
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sidebar-section-scroll {
+  border-bottom: none;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.clear-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--border-mid);
+  color: var(--text-ghost);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.1s;
+}
+
+.clear-btn:hover {
+  background: #450a0a;
+  border-color: #7f1d1d;
+  color: #f87171;
+}
+
+.count-badge {
+  background: var(--border-mid);
+  color: var(--text-muted);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Selected board/PSU indicator */
+.selected-dim {
+  font-size: 11px;
+  color: var(--text-ghost);
+  margin-top: 4px;
+  padding-left: 1px;
+}
+
+/* Search input */
+.search-wrap { position: relative; }
+
+.search-input {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-mid);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input::placeholder { color: var(--text-ghost); }
+.search-input:focus { border-color: #3b82f6; }
+
+/* Pedal / board / PSU dropdown */
+.pedal-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-mid);
+  border-radius: 8px;
+  z-index: 200;
+  max-height: 280px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.pedal-dropdown-item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+
+.pedal-dropdown-item:last-child { border-bottom: none; }
+
+.pedal-dropdown-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.pedal-dropdown-item.active {
+  background: rgba(29, 78, 216, 0.15);
+  color: #60a5fa;
+}
+
+.pdrop-brand {
+  font-size: 10px;
+  color: var(--text-faint);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pdrop-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.psu-clear-item .pdrop-name { color: var(--text-ghost); font-style: italic; }
+
+/* PSU analysis card */
+.psu-analysis {
+  margin-top: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.psu-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.psu-row:last-child { border-bottom: none; }
+
+.psu-row.ok { background: rgba(5, 150, 105, 0.07); }
+.psu-row.warn { background: rgba(220, 38, 38, 0.07); }
+
+.psu-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  width: 50px;
+}
+
+.psu-value {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.psu-icon {
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+}
+
+.psu-row.ok  .psu-icon { color: #10b981; }
+.psu-row.warn .psu-icon { color: #f87171; }
+
+.psu-note {
+  font-size: 11px;
+  color: var(--text-ghost);
+  margin-top: 6px;
+  padding: 0 1px;
+  line-height: 1.4;
+}
+
+.psu-note-info { color: var(--text-faint); }
+
+/* Signal chain list */
+.chain-hint {
+  font-size: 10px;
+  color: var(--text-ghost);
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.placed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.placed-item {
+  display: flex;
+  align-items: center;
+  padding: 5px 4px;
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  gap: 4px;
+  cursor: default;
+  transition: border-color 0.1s, background 0.1s;
+}
+
+.placed-item.drag-over {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.drag-handle {
+  font-size: 14px;
+  color: var(--text-ghost);
+  cursor: grab;
+  flex-shrink: 0;
+  padding: 0 2px;
+  line-height: 1;
+  user-select: none;
+}
+
+.drag-handle:active { cursor: grabbing; }
+
+.chain-num {
+  font-size: 10px;
+  color: var(--text-ghost);
+  font-weight: 600;
+  width: 14px;
+  flex-shrink: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.placed-name {
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-ghost);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  flex-shrink: 0;
+  transition: color 0.1s;
+}
+
+.remove-btn:hover { color: #ef4444; }
+
+/* Footer */
+.sidebar-footer {
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--text-ghost);
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+
+.sidebar-footer a { color: var(--text-faint); text-decoration: none; }
+.sidebar-footer a:hover { color: var(--text-muted); }
+
+.footer-hints {
+  font-size: 10px;
+  color: var(--text-ghost);
+  opacity: 0.7;
+}
