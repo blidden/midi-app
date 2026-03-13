@@ -54,8 +54,8 @@ export default function App() {
 
   // Load data
   useEffect(() => {
-    fetch('/data/pedals.json').then(r => r.json()).then(setPedals).catch(console.error)
-    fetch('/data/pedalboards.json').then(r => r.json()).then(data => {
+    fetch(`${import.meta.env.BASE_URL}data/pedals.json`).then(r => r.json()).then(setPedals).catch(console.error)
+    fetch(`${import.meta.env.BASE_URL}data/pedalboards.json`).then(r => r.json()).then(data => {
       setPedalboardsData(data)
       setBoards(prev => prev.map(b =>
         b.hardwareBoard ? b : { ...b, hardwareBoard: data[0] ?? null }
