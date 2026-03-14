@@ -1,12 +1,14 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { psuDb, getPsuOutputCount } from '../data/psuDb'
 import { getEstimatedMa } from '../data/pedalPower'
+import { POPULAR_GUITARS, POPULAR_AMPS } from '../data/guitarDb'
 import './Sidebar.css'
 
 export default function Sidebar({
   pedals, pedalboards, selectedBoard, onSelectBoard,
   onAddPedal, placedPedals, onRemovePedal, onClearBoard, onReorderPedals,
   imgBaseBoard, selectedPsuId, onSelectPsu,
+  guitarContext, onGuitarContextChange,
 }) {
   const [pedalSearch,   setPedalSearch]   = useState('')
   const [showPedal,     setShowPedal]     = useState(false)
@@ -14,22 +16,65 @@ export default function Sidebar({
   const [showBoard,     setShowBoard]     = useState(false)
   const [psuSearch,     setPsuSearch]     = useState('')
   const [showPsu,       setShowPsu]       = useState(false)
+  const [guitarSearch,  setGuitarSearch]  = useState('')
+  const [showGuitar,    setShowGuitar]    = useState(false)
+  const [ampSearch,     setAmpSearch]     = useState('')
+  const [showAmp,       setShowAmp]       = useState(false)
+  const [guitarThumb,   setGuitarThumb]   = useState(null)
+  const [ampThumb,      setAmpThumb]      = useState(null)
   const [dragOverIndex, setDragOverIndex] = useState(null)
   const dragFromIdx = useRef(null)
-  const pedalRef = useRef(null)
-  const boardRef = useRef(null)
-  const psuRef   = useRef(null)
+  const pedalRef  = useRef(null)
+  const boardRef  = useRef(null)
+  const psuRef    = useRef(null)
+  const guitarRef = useRef(null)
+  const ampRef    = useRef(null)
+
+  const selectedGuitar = guitarContext?.guitar ?? null
+  const selectedAmp    = guitarContext?.amp    ?? null
 
   // Close all dropdowns on outside click
   useEffect(() => {
     const handler = (e) => {
-      if (pedalRef.current && !pedalRef.current.contains(e.target)) setShowPedal(false)
-      if (boardRef.current && !boardRef.current.contains(e.target)) setShowBoard(false)
-      if (psuRef.current   && !psuRef.current.contains(e.target))   setShowPsu(false)
+      if (pedalRef.current  && !pedalRef.current.contains(e.target))  setShowPedal(false)
+      if (boardRef.current  && !boardRef.current.contains(e.target))  setShowBoard(false)
+      if (psuRef.current    && !psuRef.current.contains(e.target))    setShowPsu(false)
+      if (guitarRef.current && !guitarRef.current.contains(e.target)) setShowGuitar(false)
+      if (ampRef.current    && !ampRef.current.contains(e.target))    setShowAmp(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  // Wikipedia thumbnail for selected guitar
+  useEffect(() => {
+    if (!selectedGuitar?.wiki) { setGuitarThumb(null); return }
+    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(selectedGuitar.wiki)}`)
+      .then(r => r.json())
+      .then(d => setGuitarThumb(d.thumbnail?.source ?? null))
+      .catch(() => setGuitarThumb(null))
+  }, [selectedGuitar?.wiki])
+
+  // Wikipedia thumbnail for selected amp
+  useEffect(() => {
+    if (!selectedAmp?.wiki) { setAmpThumb(null); return }
+    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(selectedAmp.wiki)}`)
+      .then(r => r.json())
+      .then(d => setAmpThumb(d.thumbnail?.source ?? null))
+      .catch(() => setAmpThumb(null))
+  }, [selectedAmp?.wiki])
+
+  const filteredGuitars = useMemo(() => {
+    const q = guitarSearch.toLowerCase().trim()
+    const src = q ? POPULAR_GUITARS.filter(g => `${g.brand} ${g.name}`.toLowerCase().includes(q)) : POPULAR_GUITARS
+    return src.slice(0, 40)
+  }, [guitarSearch])
+
+  const filteredAmps = useMemo(() => {
+    const q = ampSearch.toLowerCase().trim()
+    const src = q ? POPULAR_AMPS.filter(a => `${a.brand} ${a.name}`.toLowerCase().includes(q)) : POPULAR_AMPS
+    return src.slice(0, 40)
+  }, [ampSearch])
 
   const filteredPedals = useMemo(() => {
     const q = pedalSearch.toLowerCase().trim()
@@ -78,6 +123,94 @@ export default function Sidebar({
 
   return (
     <aside className="sidebar">
+
+      {/* ── Guitar ── */}
+      <section className="sidebar-section">
+        <h3 className="section-title">Guitar</h3>
+        <div className="search-wrap" ref={guitarRef}>
+          <input
+            className="search-input"
+            placeholder={selectedGuitar ? `${selectedGuitar.brand} ${selectedGuitar.name}` : 'Search guitars…'}
+            value={guitarSearch}
+            onChange={e => { setGuitarSearch(e.target.value); setShowGuitar(true) }}
+            onFocus={() => setShowGuitar(true)}
+          />
+          {showGuitar && (
+            <div className="pedal-dropdown">
+              {selectedGuitar && (
+                <button className="pedal-dropdown-item psu-clear-item"
+                  onMouseDown={() => { onGuitarContextChange({ ...guitarContext, guitar: null }); setGuitarSearch(''); setShowGuitar(false) }}>
+                  <span className="pdrop-name">— No guitar selected —</span>
+                </button>
+              )}
+              {filteredGuitars.map(g => (
+                <button key={g.id}
+                  className={`pedal-dropdown-item${g.id === selectedGuitar?.id ? ' active' : ''}`}
+                  onMouseDown={() => { onGuitarContextChange({ ...guitarContext, guitar: g }); setGuitarSearch(''); setShowGuitar(false) }}
+                >
+                  <span className="pdrop-brand">{g.brand} · {g.type}</span>
+                  <span className="pdrop-name">{g.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {selectedGuitar && (
+          <div className="gear-selected">
+            {guitarThumb && <img src={guitarThumb} alt={selectedGuitar.name} className="gear-thumb" />}
+            <div className="gear-info">
+              <span className="gear-brand">{selectedGuitar.brand}</span>
+              <span className="gear-name">{selectedGuitar.name}</span>
+              <span className="gear-type">{selectedGuitar.type}</span>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ── Amp / Rig ── */}
+      <section className="sidebar-section">
+        <h3 className="section-title">Amp / Rig</h3>
+        <div className="search-wrap" ref={ampRef}>
+          <input
+            className="search-input"
+            placeholder={selectedAmp ? `${selectedAmp.brand} ${selectedAmp.name}`.trim() : 'Search amps…'}
+            value={ampSearch}
+            onChange={e => { setAmpSearch(e.target.value); setShowAmp(true) }}
+            onFocus={() => setShowAmp(true)}
+          />
+          {showAmp && (
+            <div className="pedal-dropdown">
+              {selectedAmp && (
+                <button className="pedal-dropdown-item psu-clear-item"
+                  onMouseDown={() => { onGuitarContextChange({ ...guitarContext, amp: null }); setAmpSearch(''); setShowAmp(false) }}>
+                  <span className="pdrop-name">— No amp selected —</span>
+                </button>
+              )}
+              {filteredAmps.map(a => (
+                <button key={a.id}
+                  className={`pedal-dropdown-item${a.id === selectedAmp?.id ? ' active' : ''}`}
+                  onMouseDown={() => { onGuitarContextChange({ ...guitarContext, amp: a }); setAmpSearch(''); setShowAmp(false) }}
+                >
+                  {a.isAmpless
+                    ? <span className="pdrop-name">{a.name}</span>
+                    : <><span className="pdrop-brand">{a.brand}</span><span className="pdrop-name">{a.name}</span></>
+                  }
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {selectedAmp && (
+          <div className="gear-selected">
+            {ampThumb && <img src={ampThumb} alt={selectedAmp.name} className="gear-thumb" />}
+            <div className="gear-info">
+              {!selectedAmp.isAmpless && <span className="gear-brand">{selectedAmp.brand}</span>}
+              <span className="gear-name">{selectedAmp.name}</span>
+              {selectedAmp.isAmpless && <span className="gear-type gear-type-ampless">Ampless / Direct</span>}
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* ── Pedalboard ── */}
       <section className="sidebar-section">

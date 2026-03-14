@@ -31,9 +31,7 @@ export default function App() {
   const [midiPanelOpen,   setMidiPanelOpen]   = useState(false)
   const [selectedPedalIds,setSelectedPedalIds]= useState(new Set())
   const [theme,           setTheme]           = useState(getInitialTheme)
-  const [guitarContext,   setGuitarContext]   = useState({
-    guitarType: null, ampType: 'amp', genres: [],
-  })
+  const [guitarContext,   setGuitarContext]   = useState({ guitar: null, amp: null })
 
   const loadInputRef = useRef(null)
 
@@ -277,6 +275,7 @@ export default function App() {
           onClearBoard={clearBoard} onReorderPedals={reorderPedals}
           imgBaseBoard={IMG_BASE_BOARD}
           selectedPsuId={selectedPsuId} onSelectPsu={handleSelectPsu}
+          guitarContext={guitarContext} onGuitarContextChange={setGuitarContext}
         />
 
         <main className="app-main">

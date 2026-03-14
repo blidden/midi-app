@@ -12,8 +12,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  height: 52px;
+  padding: 0 20px;
+  height: 48px;
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -23,29 +23,32 @@
 .app-header-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex: 1;
   min-width: 0;
 }
 
-.header-logo { font-size: 20px; line-height: 1; flex-shrink: 0; }
+.header-logo { font-size: 18px; line-height: 1; flex-shrink: 0; }
 
 .header-title {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
 .header-sub {
-  font-size: 12px;
-  color: var(--text-faint);
+  font-size: 11px;
+  color: var(--text-ghost);
   font-weight: 500;
   border-left: 1px solid var(--border-mid);
-  padding-left: 10px;
+  padding-left: 12px;
   margin-left: 2px;
   white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* ─── Header actions ───────────────────────────────────────────────── */
@@ -60,18 +63,19 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 11px;
+  padding: 5px 12px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-mid);
-  border-radius: 6px;
+  border-radius: 2px;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.12s;
   white-space: nowrap;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   user-select: none;
   text-decoration: none;
 }
@@ -90,7 +94,9 @@
 
 .header-btn-theme {
   padding: 5px 9px;
-  font-size: 14px;
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 /* ─── Body ────────────────────────────────────────────────────────── */
@@ -107,8 +113,6 @@
   flex-direction: column;
   overflow: hidden;
   background: var(--bg-app);
-  background-image: radial-gradient(circle at 1px 1px, var(--dot-color) 1px, transparent 0);
-  background-size: 24px 24px;
   position: relative;
 }
 
@@ -126,14 +130,15 @@
   padding: 4px 10px;
   background: var(--bg-surface);
   border: 1px solid var(--border-mid);
-  border-radius: 5px;
+  border-radius: 2px;
   color: var(--text-faint);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.12s;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .canvas-reset-btn:hover {
@@ -144,15 +149,16 @@
 
 .empty-state {
   color: var(--text-ghost);
-  font-size: 14px;
+  font-size: 13px;
   margin-top: 80px;
+  letter-spacing: 0.04em;
 }
 
 /* ─── Board tabs ──────────────────────────────────────────────────── */
 .canvas-tabs {
   display: flex;
   align-items: center;
-  height: 36px;
+  height: 34px;
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border);
   padding: 0 8px;
@@ -167,16 +173,18 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 9px;
-  border-radius: 5px;
+  padding: 4px 10px;
+  border-radius: 2px;
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-faint);
   border: 1px solid transparent;
   user-select: none;
   white-space: nowrap;
   flex-shrink: 0;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   transition: background 0.1s, color 0.1s;
 }
 .canvas-tab:hover { background: var(--bg-hover); color: var(--text-muted); }
@@ -190,12 +198,14 @@
   background: transparent;
   border: none;
   outline: none;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-primary);
   font-family: inherit;
   width: 100px;
   padding: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .canvas-tab-close {
@@ -218,7 +228,7 @@
   font-size: 16px;
   width: 24px;
   height: 24px;
-  border-radius: 5px;
+  border-radius: 2px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -231,7 +241,7 @@
 }
 .canvas-tab-add:hover { background: var(--bg-hover); color: var(--text-secondary); }
 
-/* Space-to-pan hint */
+/* Shortcut hint */
 .canvas-shortcut-hint {
   position: absolute;
   bottom: 10px;
@@ -240,6 +250,7 @@
   font-size: 10px;
   color: var(--text-ghost);
   pointer-events: none;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   z-index: 5;
 }

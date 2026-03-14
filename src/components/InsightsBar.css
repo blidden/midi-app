@@ -3,14 +3,23 @@
   flex-shrink: 0;
   background: var(--bg-surface);
   border-top: 1px solid var(--border);
-  max-height: 260px;
   overflow: hidden;
-  transition: max-height 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 
-.insights-bar.collapsed { max-height: 36px; }
+.insights-bar.collapsed { height: 36px !important; }
+
+/* Drag-to-resize handle */
+.insights-resize-handle {
+  height: 4px;
+  flex-shrink: 0;
+  cursor: ns-resize;
+  background: transparent;
+  border-top: 2px solid var(--border);
+  transition: border-color 0.15s;
+}
+.insights-resize-handle:hover { border-color: var(--border-mid); }
 
 .insights-header {
   display: flex;
@@ -34,7 +43,6 @@
 }
 .insights-header-left:hover { background: var(--bg-hover); }
 
-/* Tab bar inside header */
 .insights-tabs {
   display: flex;
   align-items: center;
@@ -46,7 +54,7 @@
 
 .insights-tab {
   height: 100%;
-  padding: 0 12px;
+  padding: 0 14px;
   background: none;
   border: none;
   border-right: 1px solid var(--border);
@@ -56,17 +64,18 @@
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   transition: background 0.1s, color 0.1s;
 }
 .insights-tab:hover { background: var(--bg-hover); color: var(--text-muted); }
 .insights-tab.active { background: var(--bg-elevated); color: var(--text-primary); }
 
 .insights-title {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--text-faint);
 }
 
@@ -75,7 +84,7 @@
   background: var(--border-mid);
   color: var(--text-muted);
   padding: 1px 6px;
-  border-radius: 8px;
+  border-radius: 2px;
   font-weight: 600;
 }
 
@@ -84,7 +93,7 @@
   background: #7c2d12;
   color: #fb923c;
   padding: 1px 7px;
-  border-radius: 8px;
+  border-radius: 2px;
   font-weight: 600;
 }
 [data-theme='light'] .insights-warn-badge { background: #fff7ed; color: #c2410c; }
@@ -94,7 +103,7 @@
   background: #052e16;
   color: #4ade80;
   padding: 1px 7px;
-  border-radius: 8px;
+  border-radius: 2px;
   font-weight: 600;
 }
 [data-theme='light'] .insights-good-badge { background: #f0fdf4; color: #16a34a; }
@@ -110,17 +119,18 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 6px 12px 10px;
+  padding: 8px 12px 10px;
   overflow-y: auto;
-  max-height: 180px;
+  flex: 1;
+  align-content: flex-start;
 }
 
 .insight-chip {
   display: flex;
   align-items: flex-start;
-  gap: 7px;
-  padding: 7px 10px;
-  border-radius: 7px;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 2px;
   border: 1px solid;
   flex: 0 1 340px;
 }
@@ -143,7 +153,7 @@
 [data-theme='light'] .insight-chip--warning .chip-title { color: #c2410c; }
 
 .chip-icon {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   flex-shrink: 0;
   margin-top: 1px;
@@ -156,11 +166,7 @@
 .insight-chip--warning .chip-icon { color: #fb923c; }
 .insight-chip--info    .chip-icon { color: var(--text-faint); }
 
-.chip-body {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+.chip-body { display: flex; flex-direction: column; gap: 2px; }
 
 .chip-title {
   font-size: 11px;
@@ -183,69 +189,6 @@
   padding: 10px 4px;
   font-size: 12px;
   color: var(--text-ghost);
-  font-style: italic;
-}
-
-/* ── Guitar Profile tab ─────────────────────────────────────────────── */
-.insights-profile {
-  padding: 8px 14px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  overflow-y: auto;
-  max-height: 220px;
-}
-
-.profile-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.profile-row--genres { align-items: flex-start; }
-
-.profile-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-ghost);
-  flex-shrink: 0;
-  width: 48px;
-}
-
-.profile-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.profile-pill {
-  padding: 3px 9px;
-  border-radius: 20px;
-  border: 1px solid var(--border-mid);
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.1s;
-  text-transform: capitalize;
-}
-.profile-pill:hover { border-color: var(--text-ghost); color: var(--text-secondary); }
-.profile-pill.active {
-  background: #1d4ed8;
-  border-color: #2563eb;
-  color: #bfdbfe;
-}
-[data-theme='light'] .profile-pill.active { background: #dbeafe; border-color: #93c5fd; color: #1e40af; }
-
-.profile-summary {
-  font-size: 11px;
-  color: var(--text-faint);
-  padding: 4px 0 0;
-  line-height: 1.5;
 }
 
 /* ── AI Chat tab ────────────────────────────────────────────────────── */
@@ -272,7 +215,7 @@
   font-weight: 700;
   color: var(--text-ghost);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   white-space: nowrap;
 }
 
@@ -280,7 +223,7 @@
   flex: 1;
   background: var(--bg-input);
   border: 1px solid var(--border-mid);
-  border-radius: 5px;
+  border-radius: 2px;
   color: var(--text-secondary);
   font-size: 12px;
   font-family: monospace;
@@ -297,11 +240,13 @@
   font-size: 10px;
   font-weight: 600;
   padding: 3px 8px;
-  border-radius: 4px;
+  border-radius: 2px;
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
   transition: all 0.1s;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 .ai-apikey-done:hover, .ai-change-key:hover { background: var(--bg-hover); }
 
@@ -310,6 +255,8 @@
   color: #60a5fa;
   text-decoration: none;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .ai-apikey-link:hover { text-decoration: underline; }
 
@@ -323,6 +270,8 @@
   font-size: 10px;
   color: var(--text-ghost);
   flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .ai-messages {
@@ -345,28 +294,24 @@
   color: var(--text-muted);
   font-size: 11px;
   padding: 3px 9px;
-  border-radius: 5px;
+  border-radius: 2px;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.1s;
 }
 .ai-suggestion:hover { background: var(--bg-hover); color: var(--text-secondary); }
 
-.ai-msg {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
+.ai-msg { display: flex; gap: 8px; align-items: flex-start; }
 
 .ai-msg-role {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   flex-shrink: 0;
-  padding-top: 2px;
+  padding-top: 3px;
   color: var(--text-ghost);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  width: 20px;
+  letter-spacing: 0.08em;
+  width: 22px;
 }
 
 .ai-msg--user .ai-msg-role { color: #60a5fa; }
@@ -393,7 +338,7 @@
   flex: 1;
   background: var(--bg-input);
   border: 1px solid var(--border-mid);
-  border-radius: 6px;
+  border-radius: 2px;
   color: var(--text-secondary);
   font-size: 12px;
   font-family: inherit;
@@ -412,7 +357,7 @@
   font-weight: 700;
   width: 30px;
   height: 30px;
-  border-radius: 6px;
+  border-radius: 2px;
   cursor: pointer;
   display: flex;
   align-items: center;

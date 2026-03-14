@@ -25,6 +25,8 @@ export default function PedalboardCanvas({
   const [boardImgLoaded, setBoardImgLoaded] = useState(false)
   const [viewOffset,     setViewOffset]     = useState({ x: 24, y: 24 })
   const [spaceActive,    setSpaceActive]    = useState(false)
+  const [scale,          setScale]          = useState(1)
+  const scaleRef = useRef(1)
 
   const boardW = Math.round(board.Width  * PX_PER_INCH)
   const boardH = Math.round(board.Height * PX_PER_INCH)
@@ -71,6 +73,53 @@ export default function PedalboardCanvas({
     window.addEventListener('keyup',   onUp)
     return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp) }
   }, [onSelectAll, onCanvasClick])
+
+  // Zoom helpers
+  const applyZoom = useCallback((newScale, pivotX, pivotY) => {
+    const oldScale = scaleRef.current
+    const clampedScale = Math.max(0.25, Math.min(3, newScale))
+    const ratio = clampedScale / oldScale
+    const newOffsetX = pivotX - (pivotX - viewOffsetRef.current.x) * ratio
+    const newOffsetY = pivotY - (pivotY - viewOffsetRef.current.y) * ratio
+    scaleRef.current = clampedScale
+    setScale(clampedScale)
+    viewOffsetRef.current = { x: newOffsetX, y: newOffsetY }
+    setViewOffset({ x: newOffsetX, y: newOffsetY })
+  }, [])
+
+  // Ctrl/Cmd + scroll to zoom
+  useEffect(() => {
+    const el = viewportRef.current
+    if (!el) return
+    const handler = (e) => {
+      if (!e.ctrlKey && !e.metaKey) return
+      e.preventDefault()
+      const rect = el.getBoundingClientRect()
+      const pivotX = e.clientX - rect.left
+      const pivotY = e.clientY - rect.top
+      const delta = e.deltaY < 0 ? 1.1 : 1 / 1.1
+      applyZoom(scaleRef.current * delta, pivotX, pivotY)
+    }
+    el.addEventListener('wheel', handler, { passive: false })
+    return () => el.removeEventListener('wheel', handler)
+  }, [applyZoom])
+
+  const zoomIn  = useCallback(() => {
+    const el = viewportRef.current
+    const rect = el?.getBoundingClientRect()
+    applyZoom(scaleRef.current * 1.2, rect ? rect.width / 2 : 0, rect ? rect.height / 2 : 0)
+  }, [applyZoom])
+
+  const zoomOut = useCallback(() => {
+    const el = viewportRef.current
+    const rect = el?.getBoundingClientRect()
+    applyZoom(scaleRef.current / 1.2, rect ? rect.width / 2 : 0, rect ? rect.height / 2 : 0)
+  }, [applyZoom])
+
+  const zoomReset = useCallback(() => {
+    scaleRef.current = 1
+    setScale(1)
+  }, [])
 
   const startPan = useCallback((e) => {
     draggingRef.current = {
@@ -189,9 +238,16 @@ export default function PedalboardCanvas({
       className={`canvas-viewport${spaceActive ? ' space-pan' : ''}`}
       onMouseDown={handleViewportMouseDown}
     >
+      <div className="canvas-zoom-controls">
+        <button className="zoom-btn" onClick={zoomIn}  title="Zoom in (Ctrl+scroll)">+</button>
+        <span   className="zoom-label">{Math.round(scale * 100)}%</span>
+        <button className="zoom-btn" onClick={zoomOut} title="Zoom out (Ctrl+scroll)">−</button>
+        <button className="zoom-btn zoom-btn-reset" onClick={zoomReset} title="Reset zoom">⊙</button>
+      </div>
+
       <div
         className="canvas-outer"
-        style={{ transform: `translate(${viewOffset.x}px, ${viewOffset.y}px)` }}
+        style={{ transform: `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${scale})`, transformOrigin: '0 0' }}
       >
         <div className="canvas-label">
           {board.Brand} {board.Name} — {board.Width}" × {board.Height}"

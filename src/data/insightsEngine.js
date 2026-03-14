@@ -4,7 +4,13 @@ import { classifyPedal } from './pedalClassify'
 export function analyzeChain(placedPedals, ctx = {}) {
   if (placedPedals.length < 2) return []
 
-  const { guitarType = null, ampType = 'amp', genres = [] } = ctx
+  const guitar = ctx.guitar ?? null
+  const amp    = ctx.amp    ?? null
+
+  const guitarType = guitar?.type ?? null
+  const isAmpless  = amp?.isAmpless === true
+  const isAcoustic = guitarType === 'acoustic'
+  const isBass     = guitarType === 'bass'
 
   const chain = placedPedals.map((p, i) => ({
     ...p, type: classifyPedal(p.brand, p.name), pos: i,
@@ -21,9 +27,6 @@ export function analyzeChain(placedPedals, ctx = {}) {
 
   const driveTypes = ['overdrive', 'distortion', 'boost', 'fuzz']
   const modTypes   = ['chorus', 'flanger', 'phaser', 'tremolo', 'vibrato', 'modulation']
-  const isAmpless  = ampType === 'ampless'
-  const isAcoustic = guitarType === 'acoustic'
-  const isBass     = guitarType === 'bass'
 
   // ── Tuner placement ──────────────────────────────────────────────────
   if (has('tuner') && firstOf('tuner') !== 0)
@@ -116,23 +119,6 @@ export function analyzeChain(placedPedals, ctx = {}) {
     insights.push({ id: 'drive-stack', severity: 'info', title: `${countOf(...driveTypes)} gain stages`,
       message: 'Ensure each stage has a distinct character: low-gain → medium-gain → high-gain or clean boost → OD → fuzz for layered harmonics.' })
 
-  // ── Genre-specific ───────────────────────────────────────────────────
-  if (genres.includes('jazz') && !has('compressor'))
-    insights.push({ id: 'jazz-comp', severity: 'tip', title: 'Jazz: consider a compressor',
-      message: 'Jazz guitar benefits from a subtle optical compressor to even attack and add sustain without colour. A transparent comp (Keeley, Origin Effects) keeps jazz clarity intact.' })
-
-  if (genres.includes('country') && !has('compressor'))
-    insights.push({ id: 'country-comp', severity: 'tip', title: 'Country: add a compressor',
-      message: 'Compression is essential for chicken-pickin\' country. A comp before drives gives that punchy, snappy attack defining the genre.' })
-
-  if (genres.includes('shoegaze') && !has('reverb'))
-    insights.push({ id: 'shoegaze-reverb', severity: 'tip', title: 'Shoegaze needs reverb',
-      message: 'Shoegaze is defined by washed-out reverb. A hall or shimmer reverb with long decay and high wet mix (Strymon BigSky, EHX Holy Grail) is essential.' })
-
-  if (genres.includes('metal') && !has('noise-gate', 'gate') && has('distortion', 'fuzz'))
-    insights.push({ id: 'metal-gate', severity: 'tip', title: 'High-gain: add a noise gate',
-      message: 'High-gain rigs pick up significant noise. A noise gate (ISP Decimator G String, Boss NS-2) kills the noise floor in rests for a clean, tight metal sound.' })
-
   // ── Great pairings ───────────────────────────────────────────────────
   if (has('octave') && has('fuzz') && firstOf('octave') < firstOf('fuzz'))
     insights.push({ id: 'octave-into-fuzz', severity: 'good', title: 'Octave → Fuzz',
@@ -155,7 +141,17 @@ export function analyzeChain(placedPedals, ctx = {}) {
 
 // Build a profile object for AI context
 export function buildBoardProfile(placedPedals, ctx = {}, boardName = 'My Board') {
-  const { guitarType = 'electric', ampType = 'amp', genres = [] } = ctx
+  const guitar = ctx.guitar ?? null
+  const amp    = ctx.amp    ?? null
+
+  const guitarName = guitar
+    ? `${guitar.brand} ${guitar.name} (${guitar.type})`
+    : 'Not specified'
+
+  const ampSetup = amp
+    ? (amp.isAmpless ? `${amp.name} (ampless/direct)` : `${amp.brand} ${amp.name}`)
+    : 'Not specified'
+
   const chain = placedPedals.map(p => ({ ...p, type: classifyPedal(p.brand, p.name) }))
   const has = (...tl) => chain.some(p => tl.includes(p.type))
 
@@ -171,8 +167,7 @@ export function buildBoardProfile(placedPedals, ctx = {}, boardName = 'My Board'
   if (has('amp', 'ir'))     sections.push('amp simulation')
 
   return {
-    boardName, guitarType, ampType,
-    genres: genres.length ? genres.join(', ') : 'not specified',
+    boardName, guitarName, ampSetup,
     pedalCount: placedPedals.length,
     chainSummary: chain.map((p, i) => `${i + 1}. ${p.brand} ${p.name} (${p.type})`).join('\n'),
     sections,

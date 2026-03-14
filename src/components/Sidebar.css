@@ -67,6 +67,62 @@
   text-transform: none;
 }
 
+/* Guitar / Amp gear card */
+.gear-selected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.gear-thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+  background: var(--bg-hover);
+}
+
+.gear-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.gear-brand {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+}
+
+.gear-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gear-type {
+  font-size: 10px;
+  color: var(--text-ghost);
+  text-transform: capitalize;
+}
+
+.gear-type-ampless {
+  color: #60a5fa;
+  text-transform: none;
+}
+
 /* Selected board/PSU indicator */
 .selected-dim {
   font-size: 11px;

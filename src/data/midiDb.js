@@ -702,6 +702,9 @@ const modelOverrides = {
   'Walrus Audio Canvas Line Isolator': { hasMidi: false, noMidiNote: 'Canvas Line Isolator is a utility — no MIDI.' },
   'Walrus Audio Canvas Volume Pedal':  { hasMidi: false, noMidiNote: 'Canvas Volume Pedal is a passive volume control — no MIDI.' },
   'Walrus Audio Canvas Rehearsal': { hasMidi: false, noMidiNote: 'Canvas Rehearsal is a utility/connectivity device — no MIDI.' },
+  'Walrus Audio Julianna': { hasMidi: false, noMidiNote: 'The Julianna is an analog chorus/vibrato pedal — it does not have MIDI control.' },
+  'Walrus Audio Julia':    { hasMidi: false, noMidiNote: 'The Julia is an analog chorus/vibrato pedal — it does not have MIDI control.' },
+  'JHS Kilt':              { hasMidi: false, noMidiNote: 'The Kilt is an analog multi-effects pedal — it does not have MIDI.' },
 }
 
 // ─── Lookup function ──────────────────────────────────────────────────────────

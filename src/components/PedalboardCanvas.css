@@ -1,4 +1,52 @@
 
+/* Zoom controls overlay */
+.canvas-zoom-controls {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-mid);
+  border-radius: 2px;
+  padding: 3px 4px;
+  pointer-events: all;
+}
+
+.zoom-btn {
+  width: 22px;
+  height: 22px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  line-height: 1;
+  font-family: inherit;
+  transition: background 0.1s, color 0.1s;
+}
+
+.zoom-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.zoom-btn-reset { font-size: 13px; }
+
+.zoom-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-ghost);
+  min-width: 34px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+}
+
 /* Fills the canvas-scroll-area; all panning happens via transform on canvas-outer */
 .canvas-viewport {
   position: absolute;
