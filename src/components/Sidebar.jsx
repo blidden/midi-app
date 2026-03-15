@@ -9,6 +9,7 @@ export default function Sidebar({
   onAddPedal, placedPedals, onRemovePedal, onClearBoard, onReorderPedals,
   imgBaseBoard, selectedPsuId, onSelectPsu,
   guitarContext, onGuitarContextChange,
+  style,
 }) {
   const [pedalSearch,   setPedalSearch]   = useState('')
   const [showPedal,     setShowPedal]     = useState(false)
@@ -32,6 +33,7 @@ export default function Sidebar({
 
   const selectedGuitar = guitarContext?.guitar ?? null
   const selectedAmp    = guitarContext?.amp    ?? null
+  const useAmp         = guitarContext?.useAmp ?? true
 
   // Close all dropdowns on outside click
   useEffect(() => {
@@ -122,7 +124,7 @@ export default function Sidebar({
   const isBoardActive = (b) => selectedBoard?.Name === b.Name && selectedBoard?.Brand === b.Brand
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" style={style}>
 
       {/* ── Guitar ── */}
       <section className="sidebar-section">
@@ -169,45 +171,66 @@ export default function Sidebar({
 
       {/* ── Amp / Rig ── */}
       <section className="sidebar-section">
-        <h3 className="section-title">Amp / Rig</h3>
-        <div className="search-wrap" ref={ampRef}>
-          <input
-            className="search-input"
-            placeholder={selectedAmp ? `${selectedAmp.brand} ${selectedAmp.name}`.trim() : 'Search amps…'}
-            value={ampSearch}
-            onChange={e => { setAmpSearch(e.target.value); setShowAmp(true) }}
-            onFocus={() => setShowAmp(true)}
-          />
-          {showAmp && (
-            <div className="pedal-dropdown">
-              {selectedAmp && (
-                <button className="pedal-dropdown-item psu-clear-item"
-                  onMouseDown={() => { onGuitarContextChange({ ...guitarContext, amp: null }); setAmpSearch(''); setShowAmp(false) }}>
-                  <span className="pdrop-name">— No amp selected —</span>
-                </button>
-              )}
-              {filteredAmps.map(a => (
-                <button key={a.id}
-                  className={`pedal-dropdown-item${a.id === selectedAmp?.id ? ' active' : ''}`}
-                  onMouseDown={() => { onGuitarContextChange({ ...guitarContext, amp: a }); setAmpSearch(''); setShowAmp(false) }}
-                >
-                  {a.isAmpless
-                    ? <span className="pdrop-name">{a.name}</span>
-                    : <><span className="pdrop-brand">{a.brand}</span><span className="pdrop-name">{a.name}</span></>
-                  }
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="section-title-row">
+          <h3 className="section-title">Amp / Rig</h3>
+          <div className="amp-toggle">
+            <button
+              className={`amp-toggle-btn${useAmp ? ' active' : ''}`}
+              onClick={() => onGuitarContextChange({ ...guitarContext, useAmp: true })}
+            >With Amp</button>
+            <button
+              className={`amp-toggle-btn${!useAmp ? ' active' : ''}`}
+              onClick={() => onGuitarContextChange({ ...guitarContext, useAmp: false, amp: null })}
+            >Ampless</button>
+          </div>
         </div>
-        {selectedAmp && (
-          <div className="gear-selected">
-            {ampThumb && <img src={ampThumb} alt={selectedAmp.name} className="gear-thumb" />}
-            <div className="gear-info">
-              {!selectedAmp.isAmpless && <span className="gear-brand">{selectedAmp.brand}</span>}
-              <span className="gear-name">{selectedAmp.name}</span>
-              {selectedAmp.isAmpless && <span className="gear-type gear-type-ampless">Ampless / Direct</span>}
+
+        {useAmp && (
+          <>
+            <div className="search-wrap" ref={ampRef} style={{ marginTop: 8 }}>
+              <input
+                className="search-input"
+                placeholder={selectedAmp ? `${selectedAmp.brand} ${selectedAmp.name}`.trim() : 'Search amps…'}
+                value={ampSearch}
+                onChange={e => { setAmpSearch(e.target.value); setShowAmp(true) }}
+                onFocus={() => setShowAmp(true)}
+              />
+              {showAmp && (
+                <div className="pedal-dropdown">
+                  {selectedAmp && (
+                    <button className="pedal-dropdown-item psu-clear-item"
+                      onMouseDown={() => { onGuitarContextChange({ ...guitarContext, amp: null }); setAmpSearch(''); setShowAmp(false) }}>
+                      <span className="pdrop-name">— No amp selected —</span>
+                    </button>
+                  )}
+                  {filteredAmps.filter(a => !a.isAmpless).map(a => (
+                    <button key={a.id}
+                      className={`pedal-dropdown-item${a.id === selectedAmp?.id ? ' active' : ''}`}
+                      onMouseDown={() => { onGuitarContextChange({ ...guitarContext, amp: a }); setAmpSearch(''); setShowAmp(false) }}
+                    >
+                      <span className="pdrop-brand">{a.brand}</span>
+                      <span className="pdrop-name">{a.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+            {selectedAmp && (
+              <div className="gear-selected">
+                {ampThumb && <img src={ampThumb} alt={selectedAmp.name} className="gear-thumb" />}
+                <div className="gear-info">
+                  <span className="gear-brand">{selectedAmp.brand}</span>
+                  <span className="gear-name">{selectedAmp.name}</span>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {!useAmp && (
+          <div className="ampless-badge">
+            <span className="ampless-dot" />
+            Direct / Ampless signal path
           </div>
         )}
       </section>
@@ -353,8 +376,6 @@ export default function Sidebar({
       )}
 
       <div className="sidebar-footer">
-        Data from <a href="https://pedalplayground.com" target="_blank" rel="noreferrer">pedalplayground.com</a>
-        <br />
         <span className="footer-hints">Shift+click: multi-select · Ctrl+A: all · Drag: move group</span>
       </div>
     </aside>

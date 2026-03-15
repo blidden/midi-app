@@ -53,26 +53,19 @@
   inset: 0;
   overflow: hidden;
   cursor: default;
+  background-color: var(--bg-app);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 42px 42px;
 }
 .canvas-viewport.space-pan         { cursor: grab; }
 .canvas-viewport.panning           { cursor: grabbing; }
 .canvas-viewport.space-pan.panning { cursor: grabbing; }
 
 .canvas-outer {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
   will-change: transform;
   position: absolute;
-}
-
-.canvas-label {
-  font-size: 12px;
-  color: var(--text-ghost);
-  font-weight: 500;
-  padding-left: 2px;
-  letter-spacing: 0.02em;
 }
 
 .canvas-board {

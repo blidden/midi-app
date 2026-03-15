@@ -249,10 +249,6 @@ export default function PedalboardCanvas({
         className="canvas-outer"
         style={{ transform: `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${scale})`, transformOrigin: '0 0' }}
       >
-        <div className="canvas-label">
-          {board.Brand} {board.Name} — {board.Width}" × {board.Height}"
-        </div>
-
         <div
           className="canvas-board"
           style={{ width: boardW, height: boardH }}

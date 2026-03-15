@@ -1,19 +1,43 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import Sidebar from './components/Sidebar'
 import PedalboardCanvas from './components/PedalboardCanvas'
-import MidiPanel from './components/MidiPanel'
-import InsightsBar from './components/InsightsBar'
+import RightPanel from './components/RightPanel'
 import './App.css'
 
 const IMG_BASE_PEDAL = 'https://pedalplayground.com/public/images/pedals/'
 const IMG_BASE_BOARD = 'https://pedalplayground.com/public/images/pedalboards/'
 
+const THEMES = [
+  { id: 'light',       name: 'Light',       swatch: '#eeeef0' },
+  { id: 'dark',        name: 'Dark',        swatch: '#0f0f11' },
+  { id: 'dracula',     name: 'Dracula',     swatch: '#282a36' },
+  { id: 'monokai',     name: 'Monokai',     swatch: '#272822' },
+  { id: 'nord',        name: 'Nord',        swatch: '#2e3440' },
+  { id: 'tokyo-night', name: 'Tokyo Night', swatch: '#1a1b26' },
+]
+
 function getInitialTheme() {
   try {
     const saved = localStorage.getItem('midi-app-theme')
-    if (saved === 'light' || saved === 'dark') return saved
+    if (saved && THEMES.some(t => t.id === saved)) return saved
   } catch {}
-  return 'dark'
+  return 'light'
+}
+
+/* ── SVG Logo ── */
+function AppLogo() {
+  return (
+    <svg className="header-logo-svg" width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+      <rect x="1" y="5" width="24" height="16" rx="4" strokeWidth="1.6" stroke="currentColor"/>
+      <circle cx="7.5" cy="11" r="2" fill="currentColor"/>
+      <circle cx="13" cy="11" r="2" fill="currentColor"/>
+      <circle cx="18.5" cy="11" r="2" fill="currentColor"/>
+      <rect x="6" y="15.5" width="3" height="2.5" rx="1" fill="currentColor" opacity="0.5"/>
+      <rect x="11.5" y="15.5" width="3" height="2.5" rx="1" fill="currentColor" opacity="0.5"/>
+      <rect x="17" y="15.5" width="3" height="2.5" rx="1" fill="currentColor" opacity="0.5"/>
+      <path d="M10 1.5 L13 4.5 L16 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.5"/>
+    </svg>
+  )
 }
 
 export default function App() {
@@ -31,9 +55,17 @@ export default function App() {
   const [midiPanelOpen,   setMidiPanelOpen]   = useState(false)
   const [selectedPedalIds,setSelectedPedalIds]= useState(new Set())
   const [theme,           setTheme]           = useState(getInitialTheme)
-  const [guitarContext,   setGuitarContext]   = useState({ guitar: null, amp: null })
+  const [showThemePicker, setShowThemePicker] = useState(false)
+  const [guitarContext,   setGuitarContext]   = useState({ guitar: null, amp: null, useAmp: true })
 
-  const loadInputRef = useRef(null)
+  // Resizable panels
+  const [sidebarWidth,    setSidebarWidth]    = useState(272)
+  const [rightWidth,      setRightWidth]      = useState(320)
+
+  const loadInputRef    = useRef(null)
+  const themePickerRef  = useRef(null)
+  const sidebarResizing = useRef(null)
+  const rightResizing   = useRef(null)
 
   // Active board derived
   const activeBoard = useMemo(
@@ -50,6 +82,54 @@ export default function App() {
     try { localStorage.setItem('midi-app-theme', theme) } catch {}
   }, [theme])
 
+  // Close theme picker on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (themePickerRef.current && !themePickerRef.current.contains(e.target)) {
+        setShowThemePicker(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  // Panel resize logic
+  useEffect(() => {
+    const onMove = (e) => {
+      if (sidebarResizing.current) {
+        const { startX, startWidth } = sidebarResizing.current
+        setSidebarWidth(Math.max(200, Math.min(480, startWidth + (e.clientX - startX))))
+      }
+      if (rightResizing.current) {
+        const { startX, startWidth } = rightResizing.current
+        setRightWidth(Math.max(240, Math.min(600, startWidth - (e.clientX - startX))))
+      }
+    }
+    const onUp = () => {
+      sidebarResizing.current = null
+      rightResizing.current = null
+      document.body.style.userSelect = ''
+      document.body.style.cursor = ''
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
+  }, [])
+
+  const startSidebarResize = useCallback((e) => {
+    e.preventDefault()
+    sidebarResizing.current = { startX: e.clientX, startWidth: sidebarWidth }
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'ew-resize'
+  }, [sidebarWidth])
+
+  const startRightResize = useCallback((e) => {
+    e.preventDefault()
+    rightResizing.current = { startX: e.clientX, startWidth: rightWidth }
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'ew-resize'
+  }, [rightWidth])
+
   // Load data
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/pedals.json`).then(r => r.json()).then(setPedals).catch(console.error)
@@ -61,12 +141,12 @@ export default function App() {
     }).catch(console.error)
   }, [])
 
-  // ── Board helper ────────────────────────────────────────────────────
+  // ── Board helper ──────────────────────────────────────────────────────────
   const updateActive = useCallback((fn) => {
     setBoards(prev => prev.map(b => b.id === activeBoardId ? fn(b) : b))
   }, [activeBoardId])
 
-  // ── Board CRUD ──────────────────────────────────────────────────────
+  // ── Board CRUD ────────────────────────────────────────────────────────────
   const addBoard = useCallback(() => {
     const id = nextBoardId
     const defHardware = pedalboardsData[0] ?? null
@@ -99,7 +179,7 @@ export default function App() {
     setSelectedPedal(null); setMidiPanelOpen(false); setSelectedPedalIds(new Set())
   }, [])
 
-  // ── Pedal operations ────────────────────────────────────────────────
+  // ── Pedal operations ──────────────────────────────────────────────────────
   const addPedal = useCallback((pedal) => {
     updateActive(b => {
       const id = b.nextPedalId
@@ -147,7 +227,7 @@ export default function App() {
     })
   }, [updateActive])
 
-  // ── Selection ───────────────────────────────────────────────────────
+  // ── Selection ─────────────────────────────────────────────────────────────
   const handlePedalClick = useCallback((pedal) => {
     setSelectedPedalIds(new Set([pedal.id]))
     setSelectedPedal(pedal)
@@ -174,7 +254,7 @@ export default function App() {
 
   const closePanel = useCallback(() => { setMidiPanelOpen(false); setSelectedPedal(null) }, [])
 
-  // ── Keyboard: Delete removes selected pedals ────────────────────────
+  // ── Keyboard: Delete removes selected pedals ───────────────────────────────
   const selectedPedalIdsRef = useRef(selectedPedalIds)
   selectedPedalIdsRef.current = selectedPedalIds
   const removePedalRef = useRef(removePedal)
@@ -192,11 +272,11 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
-  // ── PSU + hardware board ────────────────────────────────────────────
+  // ── PSU + hardware board ───────────────────────────────────────────────────
   const handleSelectPsu   = useCallback((id) => updateActive(b => ({ ...b, psuId: id })), [updateActive])
   const handleSelectBoard = useCallback((hw) => updateActive(b => ({ ...b, hardwareBoard: hw })), [updateActive])
 
-  // ── View offset ─────────────────────────────────────────────────────
+  // ── View offset ───────────────────────────────────────────────────────────
   const handleViewOffsetChange = useCallback((x, y) => {
     updateActive(b => ({ ...b, viewOffset: { x, y } }))
   }, [updateActive])
@@ -205,7 +285,7 @@ export default function App() {
     updateActive(b => ({ ...b, viewOffset: { x: 0, y: 0 } }))
   }, [updateActive])
 
-  // ── Save / Load ─────────────────────────────────────────────────────
+  // ── Save / Load ───────────────────────────────────────────────────────────
   const handleSave = useCallback(() => {
     const data = { version: 2, boards, activeBoardId, nextBoardId, guitarContext }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -224,7 +304,10 @@ export default function App() {
           setBoards(data.boards ?? [])
           setActiveBoardId(data.activeBoardId ?? data.boards?.[0]?.id ?? 1)
           setNextBoardId(data.nextBoardId ?? 2)
-          if (data.guitarContext) setGuitarContext(data.guitarContext)
+          if (data.guitarContext) {
+            // Migrate: add useAmp default if missing
+            setGuitarContext({ useAmp: true, ...data.guitarContext })
+          }
         } else if (data.version === 1) {
           const migrated = [{
             id: 1, name: 'Board 1',
@@ -243,16 +326,57 @@ export default function App() {
     reader.readAsText(file)
   }, [])
 
-  const toggleTheme = useCallback(() => setTheme(t => t === 'dark' ? 'light' : 'dark'), [])
+  const currentTheme = THEMES.find(t => t.id === theme) ?? THEMES[0]
 
   return (
     <div className="app-layout">
       <header className="app-header">
+
+        {/* Brand */}
         <div className="app-header-brand">
-          <span className="header-logo">🎛</span>
-          <span className="header-title">MIDI Pedalboard Builder</span>
-          <span className="header-sub">+ Morningstar MC6 Pro</span>
+          <AppLogo />
+          <span className="header-title">Pedalboard</span>
         </div>
+
+        {/* Board tabs — live in the header */}
+        <div className="header-boards">
+          {boards.map(b => (
+            <div
+              key={b.id}
+              className={`header-tab${b.id === activeBoardId ? ' active' : ''}`}
+              onClick={() => switchBoard(b.id)}
+            >
+              {editingBoardId === b.id ? (
+                <input
+                  className="header-tab-input"
+                  value={b.name}
+                  onChange={e => renameBoard(b.id, e.target.value)}
+                  onBlur={() => setEditingBoardId(null)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === 'Escape') setEditingBoardId(null)
+                    e.stopPropagation()
+                  }}
+                  onClick={e => e.stopPropagation()}
+                  autoFocus
+                />
+              ) : (
+                <span onDoubleClick={e => { e.stopPropagation(); setEditingBoardId(b.id) }}>
+                  {b.name}
+                </span>
+              )}
+              {boards.length > 1 && (
+                <button
+                  className="header-tab-close"
+                  onClick={e => { e.stopPropagation(); deleteBoard(b.id) }}
+                  title="Delete board"
+                >×</button>
+              )}
+            </div>
+          ))}
+          <button className="header-tab-add" onClick={addBoard} title="New board">+</button>
+        </div>
+
+        {/* Actions */}
         <div className="header-actions">
           <button className="header-btn header-btn-save" onClick={handleSave}>↓ Save</button>
           <label className="header-btn">
@@ -260,14 +384,39 @@ export default function App() {
             <input ref={loadInputRef} type="file" accept=".json"
               style={{ display: 'none' }} onChange={handleLoadFile} />
           </label>
-          <button className="header-btn header-btn-theme" onClick={toggleTheme}
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
+
+          {/* Theme picker */}
+          <div className="theme-picker-wrap" ref={themePickerRef}>
+            <button
+              className="header-btn header-btn-theme"
+              onClick={() => setShowThemePicker(v => !v)}
+              title="Change theme"
+            >
+              <span className="theme-swatch" style={{ background: currentTheme.swatch }} />
+              {currentTheme.name}
+            </button>
+            {showThemePicker && (
+              <div className="theme-dropdown">
+                <div className="theme-dropdown-label">Theme</div>
+                {THEMES.map(t => (
+                  <button
+                    key={t.id}
+                    className={`theme-option${t.id === theme ? ' active' : ''}`}
+                    onClick={() => { setTheme(t.id); setShowThemePicker(false) }}
+                  >
+                    <span className="theme-option-swatch" style={{ background: t.swatch }} />
+                    {t.name}
+                    {t.id === theme && <span className="theme-option-check">✓</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
       <div className="app-body">
+        {/* Left sidebar */}
         <Sidebar
           pedals={pedals} pedalboards={pedalboardsData} selectedBoard={selectedBoard}
           onSelectBoard={handleSelectBoard} onAddPedal={addPedal}
@@ -276,47 +425,14 @@ export default function App() {
           imgBaseBoard={IMG_BASE_BOARD}
           selectedPsuId={selectedPsuId} onSelectPsu={handleSelectPsu}
           guitarContext={guitarContext} onGuitarContextChange={setGuitarContext}
+          style={{ width: sidebarWidth }}
         />
 
-        <main className="app-main">
-          {/* Board tabs */}
-          <div className="canvas-tabs">
-            {boards.map(b => (
-              <div
-                key={b.id}
-                className={`canvas-tab${b.id === activeBoardId ? ' active' : ''}`}
-                onClick={() => switchBoard(b.id)}
-              >
-                {editingBoardId === b.id ? (
-                  <input
-                    className="tab-name-input"
-                    value={b.name}
-                    onChange={e => renameBoard(b.id, e.target.value)}
-                    onBlur={() => setEditingBoardId(null)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' || e.key === 'Escape') setEditingBoardId(null)
-                      e.stopPropagation()
-                    }}
-                    onClick={e => e.stopPropagation()}
-                    autoFocus
-                  />
-                ) : (
-                  <span onDoubleClick={e => { e.stopPropagation(); setEditingBoardId(b.id) }}>
-                    {b.name}
-                  </span>
-                )}
-                {boards.length > 1 && (
-                  <button
-                    className="canvas-tab-close"
-                    onClick={e => { e.stopPropagation(); deleteBoard(b.id) }}
-                    title="Delete board"
-                  >×</button>
-                )}
-              </div>
-            ))}
-            <button className="canvas-tab-add" onClick={addBoard} title="Add board">+</button>
-          </div>
+        {/* Sidebar resize handle */}
+        <div className="panel-resize-handle" onMouseDown={startSidebarResize} />
 
+        {/* Canvas area */}
+        <main className="app-main">
           <div className="canvas-scroll-area">
             {selectedBoard ? (
               <PedalboardCanvas
@@ -332,25 +448,28 @@ export default function App() {
                 onViewOffsetChange={handleViewOffsetChange}
               />
             ) : (
-              <div className="empty-state" style={{ position: 'absolute', top: '80px', left: '50%', transform: 'translateX(-50%)' }}>
-                Loading pedalboards…
-              </div>
+              <div className="empty-state">Loading pedalboards…</div>
             )}
           </div>
 
           <button className="canvas-reset-btn" onClick={handleResetView}>⌖ Reset View</button>
           <div className="canvas-shortcut-hint">
-            Hold Space to pan · Drag background to pan · Shift+click multi-select · Delete to remove
+            Space to pan · Shift+click multi-select · Delete to remove · Ctrl+scroll to zoom
           </div>
-          <InsightsBar
-            placedPedals={placedPedals}
-            guitarContext={guitarContext}
-            onGuitarContextChange={setGuitarContext}
-          />
         </main>
 
-        <MidiPanel open={midiPanelOpen} pedal={selectedPedal}
-          onClose={closePanel} imgBasePedal={IMG_BASE_PEDAL} />
+        {/* Right panel resize handle */}
+        <div className="panel-resize-handle" onMouseDown={startRightResize} />
+
+        {/* Right panel: MIDI + Insights + AI */}
+        <RightPanel
+          pedal={midiPanelOpen ? selectedPedal : null}
+          onClose={closePanel}
+          imgBasePedal={IMG_BASE_PEDAL}
+          placedPedals={placedPedals}
+          guitarContext={guitarContext}
+          style={{ width: rightWidth }}
+        />
       </div>
     </div>
   )
